@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculadora de Promedio</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #6480fa 0%, #1c7be7 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #667eea;
+            margin-bottom: 30px;
+            font-size: 28px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #333;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        input[type="number"] {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        input[type="number"]:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        input[type="number"].error {
+            border-color: #e74c3c;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 12px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 10px;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .resultado {
+            margin-top: 30px;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .resultado.aprobado {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .resultado.desaprobado {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+
+        .promedio {
+            font-size: 48px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+
+        .estado {
+            font-size: 24px;
+            font-weight: 600;
+            margin-top: 10px;
+        }
+
+        .descripcion {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Calculadora de Promedio</h1>
+        
+        <form id="formularioNotas">
+            <div class="form-group">
+                <label for="nota1">Nota 1:</label>
+                <input type="number" id="nota1" min="0" max="20" step="0.01" placeholder="Ingrese nota (0-20)">
+                <div class="error-message" id="error1">Este campo es obligatorio</div>
+            </div>
+
+            <div class="form-group">
+                <label for="nota2">Nota 2:</label>
+                <input type="number" id="nota2" min="0" max="20" step="0.01" placeholder="Ingrese nota (0-20)">
+                <div class="error-message" id="error2">Este campo es obligatorio</div>
+            </div>
+
+            <div class="form-group">
+                <label for="nota3">Nota 3:</label>
+                <input type="number" id="nota3" min="0" max="20" step="0.01" placeholder="Ingrese nota (0-20)">
+                <div class="error-message" id="error3">Este campo es obligatorio</div>
+            </div>
+
+            <div class="form-group">
+                <label for="nota4">Nota 4:</label>
+                <input type="number" id="nota4" min="0" max="20" step="0.01" placeholder="Ingrese nota (0-20)">
+                <div class="error-message" id="error4">Este campo es obligatorio</div>
+            </div>
+
+            <button type="submit" class="btn">🎯 Calcular Promedio</button>
+        </form>
+
+        <div class="resultado" id="resultado">
+            <div class="descripcion">Tu promedio es:</div>
+            <div class="promedio" id="promedioValor">0.00</div>
+            <div class="estado" id="estado">-</div>
+        </div>
+    </div>
+
+    <script>
+        const formulario = document.getElementById('formularioNotas');
+        const resultado = document.getElementById('resultado');
+        const promedioValor = document.getElementById('promedioValor');
+        const estado = document.getElementById('estado');
+
+        formulario.addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Limpiar errores previos
+            document.querySelectorAll('.error-message').forEach(msg => {
+                msg.style.display = 'none';
+            });
+            document.querySelectorAll('input').forEach(input => {
+                input.classList.remove('error');
+            });
+
+            // Obtener valores
+            const nota1 = document.getElementById('nota1').value.trim();
+            const nota2 = document.getElementById('nota2').value.trim();
+            const nota3 = document.getElementById('nota3').value.trim();
+            const nota4 = document.getElementById('nota4').value.trim();
+
+            let hayError = false;
+
+            // Validar que todos los campos estén llenos
+            const notas = [
+                {valor: nota1, id: 'nota1', errorId: 'error1'},
+                {valor: nota2, id: 'nota2', errorId: 'error2'},
+                {valor: nota3, id: 'nota3', errorId: 'error3'},
+                {valor: nota4, id: 'nota4', errorId: 'error4'}
+            ];
+
+            notas.forEach(nota => {
+                if (nota.valor === '') {
+                    document.getElementById(nota.id).classList.add('error');
+                    document.getElementById(nota.errorId).textContent = 'Este campo es obligatorio';
+                    document.getElementById(nota.errorId).style.display = 'block';
+                    hayError = true;
+                } else {
+                    const valorNumerico = parseFloat(nota.valor);
+                    if (valorNumerico < 0 || valorNumerico > 20) {
+                        document.getElementById(nota.id).classList.add('error');
+                        document.getElementById(nota.errorId).textContent = 'La nota debe estar entre 0 y 20';
+                        document.getElementById(nota.errorId).style.display = 'block';
+                        hayError = true;
+                    }
+                }
+            });
+
+            if (hayError) {
+                resultado.style.display = 'none';
+                return;
+            }
+
+            // Calcular promedio
+            const n1 = parseFloat(nota1);
+            const n2 = parseFloat(nota2);
+            const n3 = parseFloat(nota3);
+            const n4 = parseFloat(nota4);
+
+            const promedio = (n1 + n2 + n3 + n4) / 4;
+
+            // Mostrar resultado
+            promedioValor.textContent = promedio.toFixed(2);
+            
+            if (promedio >= 13) {
+                estado.textContent = '✅ APROBADO';
+                resultado.className = 'resultado aprobado';
+            } else {
+                estado.textContent = '❌ DESAPROBADO';
+                resultado.className = 'resultado desaprobado';
+            }
+
+            resultado.style.display = 'block';
+        });
+
+        // Limpiar error al escribir
+        document.querySelectorAll('input[type="number"]').forEach(input => {
+            input.addEventListener('input', function() {
+                this.classList.remove('error');
+                const errorId = 'error' + this.id.slice(-1);
+                document.getElementById(errorId).style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
